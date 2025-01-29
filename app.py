@@ -77,26 +77,48 @@ def main():
                     )
                     st.write(filtered_df)
 
-                    # Step 8: Ask the user for the output file name
-                    today = datetime.datetime.today().strftime(
-                        "%Y%m%d"
-                    )  # Format: YYYYMMDD
-                    output_file = st.text_input(
-                        "Introduce el nombre del archivo de salida (sin extensión):",
-                        value=f"facturas_{selected_column}_{today}",  # Default name with date
+                    # Step 8: Add sorting functionality to the filtered dataset
+                    st.write("### Ordenar los datos filtrados")
+                    sort_column = st.selectbox(
+                        "Selecciona una columna para ordenar los datos filtrados:",
+                        headers,
                     )
-                    output_file = f"{output_file}.xlsx"
+                    sort_order = st.radio(
+                        "¿En qué orden deseas ordenar?",
+                        options=["Ascendente", "Descendente"],
+                        index=0,  # Default to "Ascendente"
+                    )
 
-                    # Step 9: Provide a downloadable Excel file with the filtered data
-                    st.write("### Descargar datos filtrados")
-                    filtered_df.to_excel(output_file, index=False)
-                    with open(output_file, "rb") as file:
-                        st.download_button(
-                            label="Descargar Excel con datos filtrados",
-                            data=file,
-                            file_name=output_file,
-                            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    if sort_column:
+                        ascending = sort_order == "Ascendente"
+                        sorted_filtered_df = filtered_df.sort_values(
+                            by=sort_column, ascending=ascending
                         )
+                        st.write(
+                            f"### Datos filtrados ordenados por {sort_column} ({sort_order.lower()})"
+                        )
+                        st.write(sorted_filtered_df)
+
+                        # Step 9: Ask the user for the output file name
+                        today = datetime.datetime.today().strftime(
+                            "%d_%m_%Y"
+                        )  # Format: DD_MM_YYYY
+                        output_file = st.text_input(
+                            "Introduce el nombre del archivo de salida (sin extensión):",
+                            value=f"facturas_{selected_column}_{today}",  # Default name with date
+                        )
+                        output_file = f"{output_file}.xlsx"
+
+                        # Step 10: Provide a downloadable Excel file with the filtered and sorted data
+                        st.write("### Descargar datos filtrados y ordenados")
+                        sorted_filtered_df.to_excel(output_file, index=False)
+                        with open(output_file, "rb") as file:
+                            st.download_button(
+                                label="Descargar Excel con datos filtrados y ordenados",
+                                data=file,
+                                file_name=output_file,
+                                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                            )
 
         elif action == "Ordenar por una columna":
             # Step 5: Let the user select a column to sort
@@ -121,7 +143,9 @@ def main():
                 st.write(sorted_df)
 
                 # Step 8: Ask the user for the output file name
-                today = datetime.datetime.today().strftime("%Y%m%d")  # Format: YYYYMMDD
+                today = datetime.datetime.today().strftime(
+                    "%d_%m_%Y"
+                )  # Format: DD_MM_YYYY
                 output_file = st.text_input(
                     "Introduce el nombre del archivo de salida (sin extensión):",
                     value=f"facturas_ordenadas_{selected_column}_{today}",  # Default name with date
